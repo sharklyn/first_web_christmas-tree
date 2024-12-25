@@ -2,16 +2,37 @@ import * as THREE from 'three';
 
 // 场景设置
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// 渲染器设置
+const renderer = new THREE.WebGLRenderer({ 
+    antialias: true,
+    alpha: true 
+});
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x000000, 0);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-// 相机位置
-camera.position.z = 15;
-camera.position.y = 5;
+// 相机初始位置
+camera.position.set(0, 10, 25);
+camera.lookAt(0, 2, 0);
+
+// 光照系统
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
+
+const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+mainLight.position.set(10, 10, 10);
+mainLight.castShadow = true;
+mainLight.shadow.mapSize.width = 2048;
+mainLight.shadow.mapSize.height = 2048;
+scene.add(mainLight);
+
+const fillLight = new THREE.DirectionalLight(0xffd700, 0.3);
+fillLight.position.set(-5, 5, -5);
+scene.add(fillLight);
 
 // 创建渐变背景
 const bgTexture = new THREE.CanvasTexture(createGradientCanvas());
@@ -459,11 +480,14 @@ let angle = 0;
 function animate() {
     requestAnimationFrame(animate);
     
-    // 旋转视角（降低速度）
+    // 相机运动
     angle += 0.001;
-    camera.position.x = Math.sin(angle) * 15;
-    camera.position.z = Math.cos(angle) * 15;
-    camera.lookAt(0, 0, 0);
+    const radius = 25;
+    const height = 10;
+    camera.position.x = Math.sin(angle) * radius;
+    camera.position.z = Math.cos(angle) * radius;
+    camera.position.y = height;
+    camera.lookAt(0, 2, 0);
     
     // 雪花动画
     snow.children.forEach(snowflake => {
