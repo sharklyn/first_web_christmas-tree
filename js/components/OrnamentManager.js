@@ -17,8 +17,8 @@ export class OrnamentManager {
         // 在树的不同位置添加装饰球
         const positions = [];
         for (let layer = 0; layer < 4; layer++) {
-            const y = layer * 1.5 - 1.5;
-            const radius = 3 - layer * 0.6;
+            const y = layer * 1.2;
+            const radius = 2.5 - layer * 0.5;
             const count = 6 + layer * 2;
 
             for (let i = 0; i < count; i++) {
@@ -50,7 +50,7 @@ export class OrnamentManager {
     }
 
     createOrnament(color) {
-        const geometry = new THREE.SphereGeometry(0.2, 16, 16);
+        const geometry = new THREE.SphereGeometry(0.15, 16, 16);
         const material = new THREE.MeshPhongMaterial({
             color: color,
             shininess: 100,
@@ -71,35 +71,72 @@ export class OrnamentManager {
     }
 
     createStar() {
-        const starGeometry = new THREE.BufferGeometry();
-        const vertices = [];
-        const starPoints = 5;
+        const starGroup = new THREE.Group();
+
+        // 创建星星的主体（两个交叉的三角形）
+        const starShape = new THREE.Shape();
+        const points = [];
+        const numPoints = 5;
         const innerRadius = 0.2;
         const outerRadius = 0.5;
 
-        for (let i = 0; i < starPoints * 2; i++) {
+        for (let i = 0; i < numPoints * 2; i++) {
             const radius = i % 2 === 0 ? outerRadius : innerRadius;
-            const angle = (i / (starPoints * 2)) * Math.PI * 2;
-            vertices.push(
-                Math.cos(angle) * radius,
-                Math.sin(angle) * radius,
-                0
-            );
+            const angle = (i / (numPoints * 2)) * Math.PI * 2;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            points.push(new THREE.Vector2(x, y));
         }
+        starShape.setFromPoints(points);
 
-        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        const starMaterial = new THREE.MeshPhongMaterial({
+        const extrudeSettings = {
+            depth: 0.1,
+            bevelEnabled: true,
+            bevelThickness: 0.05,
+            bevelSize: 0.05,
+            bevelSegments: 3
+        };
+
+        const geometry = new THREE.ExtrudeGeometry(starShape, extrudeSettings);
+        const material = new THREE.MeshPhongMaterial({
             color: 0xffd700,
-            side: THREE.DoubleSide,
             emissive: 0xffd700,
-            emissiveIntensity: 0.5
+            emissiveIntensity: 0.5,
+            shininess: 100,
+            specular: 0xffffff
         });
 
-        const star = new THREE.Mesh(starGeometry, starMaterial);
-        star.position.y = 4;
+        const star = new THREE.Mesh(geometry, material);
+        star.castShadow = true;
+        star.position.y = 4.2;
         star.rotation.z = Math.PI / 2;
 
-        return star;
+        // 添加发光效果
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            transparent: true,
+            opacity: 0.5,
+            side: THREE.BackSide
+        });
+
+        const glowMesh = new THREE.Mesh(geometry, glowMaterial);
+        glowMesh.scale.multiplyScalar(1.2);
+        glowMesh.position.copy(star.position);
+        glowMesh.rotation.copy(star.rotation);
+
+        starGroup.add(star);
+        starGroup.add(glowMesh);
+
+        // 添加动画数据
+        starGroup.userData = {
+            rotationSpeed: 0.02,
+            glowPulse: {
+                phase: 0,
+                speed: 0.05
+            }
+        };
+
+        return starGroup;
     }
 
     updateOrnaments() {
@@ -112,6 +149,18 @@ export class OrnamentManager {
                 
                 ornament.position.y = newY;
                 ornament.rotation.y += 0.01;
+            } else if (ornament.userData.rotationSpeed) {
+                // 更新星星的动画
+                ornament.rotation.z += ornament.userData.rotationSpeed;
+                
+                // 更新发光效果
+                const glowMesh = ornament.children[1];
+                const time = Date.now() * ornament.userData.glowPulse.speed;
+                const pulseScale = 1.2 + Math.sin(time) * 0.1;
+                glowMesh.scale.set(pulseScale, pulseScale, pulseScale);
+                
+                // 更新发光强度
+                ornament.children[0].material.emissiveIntensity = 0.5 + Math.sin(time) * 0.3;
             }
         });
     }

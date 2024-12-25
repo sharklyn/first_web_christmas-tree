@@ -8,13 +8,13 @@ export class ChristmasTree {
 
     createTree() {
         // 创建树干
-        const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.7, 2, 8);
+        const trunkGeometry = new THREE.CylinderGeometry(0.4, 0.6, 2, 8);
         const trunkMaterial = new THREE.MeshPhongMaterial({
             color: 0x3d1f00,
             shininess: 5
         });
         const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-        trunk.position.y = -3;
+        trunk.position.y = -1;
         trunk.castShadow = true;
         this.treeGroup.add(trunk);
 
@@ -27,10 +27,10 @@ export class ChristmasTree {
 
         // 从底部到顶部创建4层锥体
         const layers = [
-            { radius: 3.5, height: 3.0, y: -1.5 },
-            { radius: 2.8, height: 2.5, y: 0.5 },
-            { radius: 2.2, height: 2.0, y: 2.0 },
-            { radius: 1.5, height: 1.5, y: 3.2 }
+            { radius: 2.5, height: 2.5, y: 0 },
+            { radius: 2.0, height: 2.0, y: 1.5 },
+            { radius: 1.5, height: 1.5, y: 2.5 },
+            { radius: 1.0, height: 1.0, y: 3.5 }
         ];
 
         layers.forEach((layer, i) => {

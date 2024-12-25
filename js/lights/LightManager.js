@@ -8,19 +8,19 @@ export class LightManager {
 
     init() {
         // 环境光
-        const sceneLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const sceneLight = new THREE.AmbientLight(0xffffff, 0.6);
         this.scene.add(sceneLight);
 
         // 主光源
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 10, 10);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        directionalLight.position.set(5, 10, 5);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         this.scene.add(directionalLight);
 
         // 补充光源
-        const supplementLight = new THREE.DirectionalLight(0xffd700, 0.3);
+        const supplementLight = new THREE.DirectionalLight(0xffd700, 0.4);
         supplementLight.position.set(-5, 5, -5);
         this.scene.add(supplementLight);
     }
@@ -31,11 +31,11 @@ export class LightManager {
         
         colors.forEach((color, i) => {
             const angle = (i / colors.length) * Math.PI * 2;
-            const light = new THREE.PointLight(color, 0.4, 30);
+            const light = new THREE.PointLight(color, 0.5, 30);
             light.position.set(
-                Math.cos(angle) * 12,
-                6,
-                Math.sin(angle) * 12
+                Math.cos(angle) * 10,
+                8,
+                Math.sin(angle) * 10
             );
             lights.add(light);
         });
@@ -63,19 +63,19 @@ export class LightManager {
             const bulbMaterial = new THREE.MeshPhongMaterial({
                 color: color,
                 emissive: color,
-                emissiveIntensity: 0.4,
+                emissiveIntensity: 0.6,
                 shininess: 100
             });
             const bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
             bulb.position.copy(point);
             
-            const light = new THREE.PointLight(color, 0.2, 1.0);
+            const light = new THREE.PointLight(color, 0.3, 2.0);
             light.position.copy(point);
             
             bulb.userData = {
-                baseIntensity: 0.4,
+                baseIntensity: 0.6,
                 phase: Math.random() * Math.PI * 2,
-                speed: 0.001 + Math.random() * 0.001
+                speed: 0.002 + Math.random() * 0.002
             };
             
             lightGroup.add(bulb);
@@ -90,7 +90,7 @@ export class LightManager {
             if (child.userData && child.userData.baseIntensity) {
                 const time = Date.now();
                 const intensity = child.userData.baseIntensity + 
-                    Math.sin(time * child.userData.speed + child.userData.phase) * 0.2;
+                    Math.sin(time * child.userData.speed + child.userData.phase) * 0.3;
                 child.material.emissiveIntensity = intensity;
             }
         });

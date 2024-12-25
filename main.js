@@ -1,10 +1,9 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { SceneManager } from './js/scene/SceneManager';
-import { LightManager } from './js/lights/LightManager';
-import { ChristmasTree } from './js/components/ChristmasTree';
-import { OrnamentManager } from './js/components/OrnamentManager';
-import { EnvironmentManager } from './js/components/EnvironmentManager';
+import { SceneManager } from './js/scene/SceneManager.js';
+import { LightManager } from './js/lights/LightManager.js';
+import { ChristmasTree } from './js/components/ChristmasTree.js';
+import { OrnamentManager } from './js/components/OrnamentManager.js';
+import { EnvironmentManager } from './js/components/EnvironmentManager.js';
 
 class ChristmasScene {
     constructor() {
@@ -14,22 +13,22 @@ class ChristmasScene {
         this.camera = this.sceneManager.getCamera();
         this.renderer = this.sceneManager.getRenderer();
 
-        // 初始化控制器
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.05;
-        this.controls.maxPolarAngle = Math.PI / 2;
+        // 设置背景色
+        this.scene.background = new THREE.Color(0x0a192f);
+
+        // 初始化环境
+        this.environmentManager = new EnvironmentManager(this.scene);
 
         // 初始化灯光
         this.lightManager = new LightManager(this.scene);
         this.softLights = this.lightManager.createSoftLights();
         this.scene.add(this.softLights);
         this.lightStrings = this.lightManager.createLightStrings();
-        this.scene.add(this.lightStrings);
 
         // 初始化圣诞树
         this.christmasTree = new ChristmasTree();
         this.scene.add(this.christmasTree.getObject());
+        this.christmasTree.getObject().add(this.lightStrings);
 
         // 初始化装饰品
         this.ornamentManager = new OrnamentManager();
@@ -37,12 +36,6 @@ class ChristmasScene {
         this.christmasTree.addOrnament(ornaments);
         const star = this.ornamentManager.createStar();
         this.christmasTree.addOrnament(star);
-
-        // 初始化环境
-        this.environmentManager = new EnvironmentManager(this.scene);
-
-        // 设置背景色
-        this.scene.background = new THREE.Color(0x0a192f);
 
         // 开始动画循环
         this.animate();
@@ -54,8 +47,8 @@ class ChristmasScene {
     animate() {
         requestAnimationFrame(() => this.animate());
 
-        // 更新控制器
-        this.controls.update();
+        // 旋转圣诞树
+        this.christmasTree.getObject().rotation.y += 0.005;
 
         // 更新装饰品动画
         this.ornamentManager.updateOrnaments();

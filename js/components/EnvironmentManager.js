@@ -23,7 +23,7 @@ export class EnvironmentManager {
         });
         const ground = new THREE.Mesh(groundGeometry, groundMaterial);
         ground.rotation.x = -Math.PI / 2;
-        ground.position.y = -3.5;
+        ground.position.y = -1.5;
         ground.receiveShadow = true;
         this.scene.add(ground);
 
@@ -45,7 +45,7 @@ export class EnvironmentManager {
             
             pile.position.set(
                 Math.cos(angle) * distance,
-                -3.5 + height/2,
+                -1.5 + height/2,
                 Math.sin(angle) * distance
             );
             pile.scale.y = 0.3;
@@ -133,7 +133,7 @@ export class EnvironmentManager {
             positions[i + 1] -= velocities[i/3]; // Y position
 
             // 当雪花落到地面以下时，重置到顶部
-            if (positions[i + 1] < -3.5) {
+            if (positions[i + 1] < -1.5) {
                 positions[i + 1] = 20;
                 positions[i] = Math.random() * 40 - 20;   // X
                 positions[i + 2] = Math.random() * 40 - 20; // Z
